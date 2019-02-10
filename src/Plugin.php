@@ -11,8 +11,12 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\ScriptEvents;
 use Composer\Util\Filesystem;
+use Composer\Plugin\Capability\CommandProvider;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Composer\Command\BaseCommand;
 
-class Plugin implements PluginInterface, EventSubscriberInterface
+class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvider
 {
     protected $composer;
     protected $io;
@@ -21,6 +25,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $this->composer = $composer;
         $this->io = $io;
+    }
+    public function getCommands()
+    {
+        return array(new Command);
     }
     public static function getSubscribedEvents()
     {
@@ -36,15 +44,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function onPostUpdateInstall(Event $event)
     {
-        $cnf = $event->getComposer()->getPackage()->getExtra()['vakata']['frontend-dependencies'] ?? [];
-        $bin = $event->getComposer()->getConfig()->get('bin-dir');
-        $dir = $event->getComposer()->getConfig()->get('vendor-dir').'/vakata/frontend-dependencies/';
+        static::$deps($event->getComposer());
+    }
+    public static function deps(Composer $composer)
+    {
+        $cnf = $composer->getPackage()->getExtra()['vakata']['frontend-dependencies'] ?? [];
+        $bin = $composer->getConfig()->get('bin-dir');
+        $dir = $composer->getConfig()->get('vendor-dir').'/vakata/frontend-dependencies/';
         $cnf = array_merge([ 'reset' => false, 'dependencies' => [], 'target' => 'assets' ], $cnf);
         $cur = \getcwd();
         $cnf['target'] = rtrim($cur, '/\\') . '/' . trim($cnf['target'], '/\\');
 
         if ($cnf['reset']) {
-            $this->emptyDir($cnf['target']);
+            static::emptyDir($cnf['target']);
         }
         if (!is_dir($cnf['target'])) {
             mkdir($cnf['target'], 0777, true);
@@ -64,7 +76,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         file_put_contents($dir . 'README', 'PRIVATE');
 
         chdir($dir);
-        $this->io->write($bin . '/npm '.(is_file($dir . 'package-lock.json') && is_dir($dir . 'node_modules') ? 'update' : 'install').' --no-optional --production');
         passthru($bin . '/npm '.(is_file($dir . 'package-lock.json') && is_dir($dir . 'node_modules') ? 'update' : 'install').' --no-optional --production');
         
         $tasks = [];
@@ -90,7 +101,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!is_dir($cnf['target'])) {
             mkdir($cnf['target'], 0775, true);
         }
-        $this->emptyDir($cnf['target']);
+        static::emptyDir($cnf['target']);
         foreach ($tasks as $dependency => $files) {
             if (!is_dir($cnf['target'] . '/' . $dependency)) {
                 mkdir($cnf['target'] . '/' . $dependency, 0775, true);
@@ -119,7 +130,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         chdir($cur);
     }
     
-    protected function emptyDir(string $dir, bool $self = false)
+    public static function emptyDir(string $dir, bool $self = false)
     {
         if (is_dir($dir)) {
             $files = new \RecursiveIteratorIterator(
@@ -137,5 +148,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 @rmdir($dir);
             }
         }
+    }
+}
+
+class Command extends BaseCommand
+{
+    protected function configure()
+    {
+        $this->setName('frontend-dependencies');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        Plugin::deps($this->getComposer());
     }
 }
