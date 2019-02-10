@@ -51,7 +51,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvid
 
     public function onPostUpdateInstall(Event $event)
     {
-        static::$deps($event->getComposer());
+        static::deps($event->getComposer());
     }
     public static function deps(Composer $composer)
     {
