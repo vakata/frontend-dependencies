@@ -15,8 +15,9 @@ use Composer\Plugin\Capability\CommandProvider;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Command\BaseCommand;
+use Composer\Plugin\Capable;
 
-class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvider
+class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvider, Capable
 {
     protected $composer;
     protected $io;
@@ -29,6 +30,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvid
     public function getCommands()
     {
         return array(new Command);
+    }
+    public function getCapabilities()
+    {
+        return array(
+            'Composer\Plugin\Capability\CommandProvider' => 'vakata\frontenddependencies\Plugin',
+        );
     }
     public static function getSubscribedEvents()
     {
