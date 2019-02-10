@@ -51,7 +51,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvid
 
     public function onPostUpdateInstall(Event $event)
     {
-        static::deps($event->getComposer());
+        if ($event->getComposer()->getPackage()->getExtra()['vakata']['frontend-dependencies']['automatic'] ?? false) {
+            static::deps($event->getComposer());
+        }
     }
     public static function deps(Composer $composer)
     {
