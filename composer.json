@@ -1,0 +1,17 @@
+{
+    "name": "vakata/frontend-dependencies",
+    "description": "Manage front end depedencies from composer",
+    "type": "composer-plugin",
+    "require": {
+        "composer-plugin-api": "^1.1",
+        "mouf/nodejs-installer" : "~1.0"
+    },
+    "extra": {
+        "class": "vakata\\frontenddependencies\\Plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "vakata\\frontenddependencies\\": "src"
+        }
+    }
+}

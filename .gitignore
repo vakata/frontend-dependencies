@@ -1,0 +1,7 @@
+composer.lock
+vendor
+.vscode
+package.json
+package-lock.json
+README
+node_modules
