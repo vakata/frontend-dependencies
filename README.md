@@ -10,12 +10,17 @@ $ composer require vakata/frontend-dependencies
 
 ## Usage
 
-In your ```composer.json``` file include the dependencies you need and where to copy them:
+In your ```composer.json``` file include the dependencies you need and where to copy them. Each dependency is either a name and a version, or an array consisting of a version and a glob pattern. You can additionally control whether the dependencies are updated on each install or update (defaults to ```true```) and whether a clean full install is performed every time.
+
+**Keep in mind the ```target``` folder will be emptied every time dependencies are updated!**
 
 ``` json
 "extra": {
     "vakata" : {
         "frontend-dependencies" : {
+            "clean" : false,
+            "install" : true,
+            "update" : true,
             "target" : "public/assets/static/",
             "dependencies" : {
                 "dep1" : "~1.0",
@@ -24,7 +29,7 @@ In your ```composer.json``` file include the dependencies you need and where to 
                 },
                 "dep3" : {
                     "version" : "~1.0",
-                    "src" : "dist"
+                    "src" : "dist/*"
                 },
                 "dep4" : {
                     "version" : "~1.0",
@@ -32,7 +37,7 @@ In your ```composer.json``` file include the dependencies you need and where to 
                 },
                 "dep5" : {
                     "version" : "~1.0",
-                    "src" : ["dist/dep5.js","images"]
+                    "src" : "{dist/dep5.js,images}"
                 }
             }
         }
