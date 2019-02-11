@@ -71,9 +71,14 @@ class Worker
         $mode = is_file($this->settings['source'] . '/package-lock.json') && is_dir($this->settings['source'] . '/node_modules') ? 'update' : 'install'; 
         $command = 'npm ' . $mode . ' --no-optional --production --prefix ' . escapeshellarg($this->settings['source']);
         $this->message(' ' . $command);
+
+        // chdir is needed on windows
+        $cwd = getcwd();
+        chdir($this->settings['source']);
         passthru(
-            $this->composer->getConfig()->get('bin-dir') . '/' . $command
+            $this->composer->getConfig()->get('bin-dir') . DIRECTORY_SEPARATOR . $command
         );
+        chdir($cwd);
 
         // copy dependencies
         $cnt = 0;
