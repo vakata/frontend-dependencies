@@ -2,6 +2,7 @@
     "name": "vakata/frontend-dependencies",
     "description": "Manage front end depedencies from composer",
     "type": "composer-plugin",
+    "license": "MIT",
     "require": {
         "composer-plugin-api": "^1.1",
         "mouf/nodejs-installer" : "~1.0"
