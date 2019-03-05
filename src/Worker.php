@@ -44,10 +44,10 @@ class Worker
             return;
         }
         // skip running as defined in config
-        if ($reason === 'install' && !$this->settings['install']) {
+        if ($reason === 'post-install-cmd' && !$this->settings['install']) {
             return;
         }
-        if ($reason === 'update' && !$this->settings['update']) {
+        if ($reason === 'post-update-cmd' && !$this->settings['update']) {
             return;
         }
 
