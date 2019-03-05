@@ -114,6 +114,9 @@ class Worker
             $cnt ++;
         }
         $this->message('Frontend dependencies: Installed ' . $cnt . ' dependencies');
+        if ($this->settings['clean']) {
+            $this->empty($this->settings['source']);
+        }
         $this->empty($this->settings['mouf']);
         $bin = $this->composer->getConfig()->get('bin-dir');
         foreach (["node", "npm", "node.bat", "npm.bat"] as $file) {
