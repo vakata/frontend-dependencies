@@ -140,6 +140,7 @@ class Worker
                     @rmdir($item->getRealPath());
                 } else {
                     @unlink($item->getRealPath());
+                    @unlink($item->getPathname());
                 }
             }
             if ($self) {
