@@ -3,21 +3,23 @@
 namespace vakata\frontenddependencies;
 
 use Composer\Composer;
+use Composer\Script\Event;
+use Composer\IO\IOInterface;
 
 class Worker
 {
     protected $composer;
-    protected $messager;
+    protected $io;
     protected $settings;
 
-    public function __construct(Composer $composer, callable $messager = null)
+    public function __construct(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
-        $this->messager = $messager ?? function (string $message) { };
+        $this->io = $io;
         $this->settings = array_merge(
             [
                 // should the script always perform a clean install (fetch all packages anew)
-                'clean' => false,
+                'clean' => true,
                 // should the script run after composer install
                 'install' => true,
                 // should the script run after composer update
@@ -31,9 +33,11 @@ class Worker
         );
         $this->settings['target'] = rtrim(getcwd(), '/\\') . '/' . trim($this->settings['target'], '/\\');
         $this->settings['source'] = $this->composer->getConfig()->get('vendor-dir').'/vakata/frontend-dependencies/tmp';
+        $this->settings['mouf'] = trim($this->composer->getPackage()->getExtra()['mouf']['nodejs']['targetDir'] ?? $this->composer->getConfig()->get('vendor-dir') . '/nodejs/nodejs', '/\\');
     }
-    public function execute(string $reason = 'command')
+    public function execute(Event $event)
     {
+        $reason = $event->getName();
         // skip running if no dependencies specified
         if (!count($this->settings['dependencies'])) {
             $this->message('Frontend dependencies: No dependencies to install');
@@ -65,7 +69,11 @@ class Worker
             }, $this->settings['dependencies'])
         ]));
         file_put_contents($this->settings['source'] . '/README', 'PRIVATE');
-        
+
+        $mouf = new \Mouf\NodeJsInstaller\NodeJsPlugin();
+        $mouf->activate($this->composer, $this->io);
+        $mouf->onPostUpdateInstall($event);
+
         // install dependencies
         $this->message('Frontend dependencies: Installing ' . count($this->settings['dependencies']) . ' dependencies');
         $mode = is_file($this->settings['source'] . '/package-lock.json') && is_dir($this->settings['source'] . '/node_modules') ? 'update' : 'install'; 
@@ -106,11 +114,12 @@ class Worker
             $cnt ++;
         }
         $this->message('Frontend dependencies: Installed ' . $cnt . ' dependencies');
+        $this->empty($this->settings['mouf']);
     }
 
     protected function message(string $message)
     {
-        return \call_user_func($this->messager, $message);
+        return $this->io->write($message);
     }
     protected function empty(string $dir, bool $self = false)
     {

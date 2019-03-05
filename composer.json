@@ -3,9 +3,15 @@
     "description": "Manage front end depedencies from composer",
     "type": "composer-plugin",
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/vakata/nodejs-installer"
+        }
+    ],
     "require": {
         "composer-plugin-api": "^1.1",
-        "mouf/nodejs-installer" : "~1.0"
+        "mouf/nodejs-installer" : "0.0.1"
     },
     "extra": {
         "class": "vakata\\frontenddependencies\\Plugin"

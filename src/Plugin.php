@@ -11,8 +11,9 @@ use Composer\Script\ScriptEvents;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 
-class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvider, Capable
+class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    public const CMD_NAME = 'frontend-dependencies';
     protected $composer;
     protected $io;
 
@@ -21,43 +22,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface, CommandProvid
         $this->composer = $composer;
         $this->io = $io;
     }
-    public function getCommands()
-    {
-        return [
-            new Command()
-        ];
-    }
-    public function getCapabilities()
-    {
-        return [
-            'Composer\Plugin\Capability\CommandProvider' => 'vakata\frontenddependencies\Plugin'
-        ];
-    }
     public static function getSubscribedEvents()
     {
         return [
-            ScriptEvents::POST_INSTALL_CMD => [ [ 'onPostInstall', 0 ] ],
-            ScriptEvents::POST_UPDATE_CMD => [ [ 'onPostUpdate', 0 ] ]
+            ScriptEvents::POST_INSTALL_CMD => [ [ 'worker', 0 ] ],
+            ScriptEvents::POST_UPDATE_CMD => [ [ 'worker', 0 ] ],
+            static::CMD_NAME => [ [ 'worker', 0 ] ]
         ];
     }
-
-    public function onPostInstall(Event $event)
+    public function worker(Event $event)
     {
-        (new Worker(
-            $event->getComposer(),
-            function (string $message) {
-                $this->io->write($message);
-            }
-        ))->execute("install");
-    }
-    public function onPostUpdate(Event $event)
-    {
-        (new Worker(
-            $event->getComposer(),
-            function (string $message) {
-                $this->io->write($message);
-            }
-        ))->execute("update");
+        (new Worker($this->composer, $this->io))->execute($event);
     }
 }
 
