@@ -33,7 +33,7 @@ class Worker
         );
         $this->settings['target'] = rtrim(getcwd(), '/\\') . '/' . trim($this->settings['target'], '/\\');
         $this->settings['source'] = $this->composer->getConfig()->get('vendor-dir').'/vakata/frontend-dependencies/tmp';
-        $this->settings['mouf'] = trim($this->composer->getPackage()->getExtra()['mouf']['nodejs']['targetDir'] ?? $this->composer->getConfig()->get('vendor-dir') . '/nodejs/nodejs', '/\\');
+        $this->settings['mouf'] = rtrim($this->composer->getPackage()->getExtra()['mouf']['nodejs']['targetDir'] ?? $this->composer->getConfig()->get('vendor-dir') . '/nodejs/nodejs', '/\\');
     }
     public function execute(Event $event)
     {
