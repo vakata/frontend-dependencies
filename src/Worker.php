@@ -115,6 +115,13 @@ class Worker
         }
         $this->message('Frontend dependencies: Installed ' . $cnt . ' dependencies');
         $this->empty($this->settings['mouf']);
+        $bin = $this->composer->getConfig()->get('bin-dir');
+        foreach (["node", "npm", "node.bat", "npm.bat"] as $file) {
+            $file = $bin . DIRECTORY_SEPARATOR . $file;
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
     }
 
     protected function message(string $message)
