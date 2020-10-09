@@ -11,7 +11,7 @@
     ],
     "require": {
         "composer-plugin-api": "^1.1",
-        "mouf/nodejs-installer" : "dev-windows as 1.0.0"
+        "mouf/nodejs-installer" : "0.0.3"
     },
     "extra": {
         "class": "vakata\\frontenddependencies\\Plugin"
