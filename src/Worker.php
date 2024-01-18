@@ -77,7 +77,7 @@ class Worker
         // install dependencies
         $this->message('Frontend dependencies: Installing ' . count($this->settings['dependencies']) . ' dependencies');
         $mode = is_file($this->settings['source'] . '/package-lock.json') && is_dir($this->settings['source'] . '/node_modules') ? 'update' : 'install'; 
-        $command = 'npm ' . $mode . ' --no-optional --production --prefix ' . escapeshellarg($this->settings['source']);
+        $command = 'npm ' . $mode . ' --omit=dev --omit=optional --prefix ' . escapeshellarg($this->settings['source']);
         $this->message(' ' . $command);
 
         // chdir is needed on windows
